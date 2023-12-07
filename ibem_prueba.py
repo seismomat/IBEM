@@ -119,9 +119,10 @@ def Solver(k,vert,xis,nu):
 def Desplazamiento_Por_frec(data):
     k,vert,xis,nu,XX,beta,rho=data
     phi=Solver(k,vert,xis,nu)
-    V = G22(k,XX,XI,beta,rho)
+    V = G22(k,XX,XI,beta,rho)# desplazamiento puntual
     for i_xi in range(len(xis)):
         V+=phi[i_xi]*G22(k,XX,xis[i_xi,:],beta,rho)
+        # desplazamiento por cada xi
 
     return V
 
@@ -135,7 +136,7 @@ def Ricker(dt,N):
         r[i]=(a2-1/2)*np.exp(-a2);
     Fr=np.fft.fft(r)
     Fr=Fr[0:round(N/2)]
-    plt.plot(abs(Fr))
+    plt.plot(r)
     plt.title("Espectro Ricker")
     plt.show()
     
@@ -165,6 +166,14 @@ def IBEM(chunks,ks):
 def signal(chunks,ks,dt,N):
     Sp=IBEM(chunks,ks) # espectro obtenido con IBEM
     FouRic=Ricker(dt,2*N) # espectro del Ricker
+    plt.subplot(121)
+    plt.plot(abs(Sp))
+    plt.subplot(122)
+    plt.plot(abs(FouRic))
+    # Ajustar el espaciado entre subgráficos
+    plt.tight_layout()
+    plt.show()
+    
     conv_Sp_FouRic=Sp*FouRic;
     conj_conv_Sp_FouRic=conv_Sp_FouRic[1:]
     conj_conv_Sp_FouRic=np.conj(conj_conv_Sp_FouRic)
@@ -178,4 +187,5 @@ def signal(chunks,ks,dt,N):
 
 señal,Fou_senal=signal(chunks,ks,dt,N)
 plt.plot(señal,'k-',lw=2)
+plt.title("Señal en tiempo")
 plt.show()
