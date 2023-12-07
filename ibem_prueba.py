@@ -29,12 +29,13 @@ def gam_k__n_k(x,xi,ni):
     return (x[0]-xi[0])/r_ * ni[0] + (x[1]-xi[1])/r_ * ni[1]
 
 T= 2 # seg
-N= 16 # armonicos
+N= 32 # armonicos
 dt=0.05
 f0=1/T
 fmax=1/(2*dt)
 df=1/(N*dt)
-frec=np.r_[f0:fmax:df]
+#frec=np.r_[f0:fmax:df]
+frec=np.linspace(f0,fmax,N)
 
 w = 2*pi*frec # rad/s
 beta = 2500 # km/s
@@ -49,7 +50,7 @@ dxs=lambds/16
 # fuente puntual (antiplana) en
 XI = np.array([5000.0,-50.0])
 # receptor 
-XX =  np.array([5000.0,-25.0])
+XX =  np.array([5000.0,-1.0])
 
 L=10000;
 chunks=np.round(L/dxs).astype(int)
@@ -124,6 +125,22 @@ def Desplazamiento_Por_frec(data):
 
     return V
 
+def Ricker(dt,N):
+    tp=0.3; ts=0.5;
+    t=np.zeros(N); r=np.zeros(N)
+    for i in range(N):
+        t[i]=dt*i;
+        a=np.pi*(t[i]-ts)/tp;
+        a2=a*a;
+        r[i]=(a2-1/2)*np.exp(-a2);
+    Fr=np.fft.fft(r)
+    Fr=Fr[0:round(N/2)]
+    plt.plot(abs(Fr))
+    plt.title("Espectro Ricker")
+    plt.show()
+    
+    return Fr
+    
 #@jit(fastmath=True,forceobj=True)
 def IBEM(chunks,ks):
     espectro=[]
@@ -131,27 +148,34 @@ def IBEM(chunks,ks):
         vert,xis,nu=malla(chunks[Iele])
         datos=(ks[Iele],vert,xis,nu,XX,beta,rho)
         espectro.append(Desplazamiento_Por_frec(datos))
-    e=np.array(espectro[1:])
-    e=np.conj(e)
-    e=e.tolist()
-    e=e[::-1]
-    f=list(espectro)
-    ff=list(e)
-    ff+=f
-    espectro+=e
+    # e=np.array(espectro[1:])
+    # e=np.conj(e)
+    # e=e.tolist()
+    # e=e[::-1]
+    # f=list(espectro)
+    # ff=list(e)
+    # ff+=f
+    # espectro+=e
         
-    plt.plot(abs(np.array(ff)),'*r')
-    plt.show()
-    return espectro
+    # plt.plot(abs(np.array(ff)),'*r')
+    # plt.show()
+    return np.array(espectro).reshape((len(espectro),))
 
 
-def signal(chunks,ks):
-    sp=IBEM(chunks,ks)
+def signal(chunks,ks,dt,N):
+    Sp=IBEM(chunks,ks) # espectro obtenido con IBEM
+    FouRic=Ricker(dt,2*N) # espectro del Ricker
+    conv_Sp_FouRic=Sp*FouRic;
+    conj_conv_Sp_FouRic=conv_Sp_FouRic[1:]
+    conj_conv_Sp_FouRic=np.conj(conj_conv_Sp_FouRic)
+    conj_conv_Sp_FouRic=np.flip(conj_conv_Sp_FouRic)
+    Fou_Senal=np.concatenate((conv_Sp_FouRic,conj_conv_Sp_FouRic),axis=0)
     # Cálculo de la IFFT para recuperar la señal en el dominio del tiempo
-    señal_recuperada = np.fft.ifft(sp)
+    señal_recuperada = np.fft.ifft(Fou_Senal)
     
-    return señal_recuperada
+    return señal_recuperada,Fou_Senal
 
-señal=signal(chunks,ks)
-plt.plot(señal,'k-x')
+
+señal,Fou_senal=signal(chunks,ks,dt,N)
+plt.plot(señal,'k-',lw=2)
 plt.show()
