@@ -29,7 +29,7 @@ def gam_k__n_k(x,xi,ni):
     return (x[0]-xi[0])/r_ * ni[0] + (x[1]-xi[1])/r_ * ni[1]
 
 T= 2 # seg
-N= 64 # armonicos
+N= 16 # armonicos
 dt=0.05
 f0=1/T
 fmax=1/(2*dt)
@@ -134,8 +134,14 @@ def IBEM(chunks,ks):
     e=np.array(espectro[1:])
     e=np.conj(e)
     e=e.tolist()
+    e=e[::-1]
+    f=list(espectro)
+    ff=list(e)
+    ff+=f
     espectro+=e
         
+    plt.plot(abs(np.array(ff)),'*r')
+    plt.show()
     return espectro
 
 
@@ -147,3 +153,5 @@ def signal(chunks,ks):
     return señal_recuperada
 
 señal=signal(chunks,ks)
+plt.plot(señal,'k-x')
+plt.show()
