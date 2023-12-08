@@ -111,9 +111,9 @@ def Solver(k,vert,xis,nu):
     # encontrar amplitudes phi de la densidad de fuerza: phi dS
     phi = np.linalg.solve(Mat,-Fue)
     
-    #phis=[abs(phi[i]) for i in range(len(xis))]
-    #plt.scatter(xis[:,0],phis,color='black')
-    #plt.show()
+    # phis=[abs(phi[i]) for i in range(len(xis))]
+    # plt.scatter(xis[:,0],phis,color='black')
+    # plt.show()
     
     return phi
 
@@ -137,9 +137,9 @@ def Ricker(dt,N):
         r[i]=(a2-1/2)*np.exp(-a2);
     Fr=np.fft.fft(r)
     Fr=Fr[0:round(N/2)]
-    # plt.plot(r)
-    # plt.title("Espectro Ricker")
-    # plt.show()
+    plt.plot(t,r)
+    plt.title("Espectro Ricker")
+    plt.show()
     
     return Fr
     
