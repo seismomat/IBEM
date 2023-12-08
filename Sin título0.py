@@ -66,8 +66,9 @@ plt.show()
 
 #DEFINICIÓN DE FUNCIONES A EMPLEAR
 #Se emplea para el cálculo de T22 (función de Hankel de segunda especie de orden uno)
-def d(k,r):
+def d(k,r,n,l):
   Si=np.multiply(k,r)
+  print(type(r),n,l)
   Di=Si*hankel2(1,Si)  #Función de Hankel de segundo tipo de primer orden
   return Di
 
@@ -111,7 +112,7 @@ for n in range(len(Xi)):
     else:
       Gamma[n][l]=(((Dist_X[n][l]/r[n][l])*Nx[0])+((Dist_Y[n][l]/r[n][l])*Nx[1]))       #Este es el producto punto de Gamma por el vector normal a la superficie (respectivo con cada una de sus componentes)
       #T_22=(i*Gamma*Vector_un*d(k,r))/(4*(np.linalg.norm(X[n]-Xi[l])))
-      Hankel=d(k,r)
+      Hankel=d(k,r,n,l)
     #Es una matriz
     if n!=l:
       T_22[n][l]=((Hankel[n][l])*(Gamma[n][l])*i)/(4*r[n][l])
@@ -179,7 +180,7 @@ for i in range(len(x_m)):
 
 #Ahora se calculan las tracciones T_22_0
 T_22_0=[]
-Hankel_0=d(k,Distancia_vectores_receptores)
+Hankel_0=d(k,Distancia_vectores_receptores,22,22)
 for n in range(len(x_m)):   
     T_22_0.append((((Hankel_0[n])*(Gamma_Nx[n]))/(4*Distancia_vectores_receptores[n]))*1j)
 T_22_0=np.array(T_22_0)
