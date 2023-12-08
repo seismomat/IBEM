@@ -33,7 +33,7 @@ beta=0.3   #Velocidad de la onda S
 Rho=0.3  #Densidad del medio 
 mu=(beta**2)*Rho              #Segunda constante de Lamé
 k=w/beta     #1/km
-k=1
+#k=1
 lam=beta/f          #longitud de onda en km
 alfa=np.sqrt((lam+(2*mu))/Rho) #Velocidad de la onda P
 
@@ -67,8 +67,8 @@ plt.show()
 #DEFINICIÓN DE FUNCIONES A EMPLEAR
 #Se emplea para el cálculo de T22 (función de Hankel de segunda especie de orden uno)
 def d(k,r):
-  Di=(k)*r
-  #Di=k*r*hankel2(1,k*r)  #Función de Hankel de segundo tipo de primer orden
+  Si=np.multiply(k,r)
+  Di=Si*hankel2(1,Si)  #Función de Hankel de segundo tipo de primer orden
   return Di
 
 #Se emplea para el cálculo de G22 (función de Hankel de segunda especie de orden cero)
