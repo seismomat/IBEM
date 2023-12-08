@@ -13,6 +13,7 @@ from matplotlib import pyplot as plt
 from math import pi,exp
 from math import sqrt as sq
 
+#from obspy.core import Trace, Stream
 #from numba import jit
 
 def T22(k,x,xi,ni):
@@ -50,7 +51,7 @@ dxs=lambds/16
 # fuente puntual (antiplana) en
 XI = np.array([5000.0,-50.0])
 # receptor 
-XX =  np.array([5000.0,-1.0])
+XX =  np.array([[5000.0,-1.0],[4500.0,-1.0],[5500.0,-1.0]])
 
 L=10000;
 chunks=np.round(L/dxs).astype(int)
@@ -136,14 +137,14 @@ def Ricker(dt,N):
         r[i]=(a2-1/2)*np.exp(-a2);
     Fr=np.fft.fft(r)
     Fr=Fr[0:round(N/2)]
-    plt.plot(r)
-    plt.title("Espectro Ricker")
-    plt.show()
+    # plt.plot(r)
+    # plt.title("Espectro Ricker")
+    # plt.show()
     
     return Fr
     
 #@jit(fastmath=True,forceobj=True)
-def IBEM(chunks,ks):
+def IBEM(chunks,ks,XX):
     espectro=[]
     for Iele in range(len(ks)):
         vert,xis,nu=malla(chunks[Iele])
@@ -163,16 +164,9 @@ def IBEM(chunks,ks):
     return np.array(espectro).reshape((len(espectro),))
 
 
-def signal(chunks,ks,dt,N):
-    Sp=IBEM(chunks,ks) # espectro obtenido con IBEM
+def signal(chunks,ks,dt,N,XX):
+    Sp=IBEM(chunks,ks,XX) # espectro obtenido con IBEM
     FouRic=Ricker(dt,2*N) # espectro del Ricker
-    plt.subplot(121)
-    plt.plot(abs(Sp))
-    plt.subplot(122)
-    plt.plot(abs(FouRic))
-    # Ajustar el espaciado entre subgráficos
-    plt.tight_layout()
-    plt.show()
     
     conv_Sp_FouRic=Sp*FouRic;
     conj_conv_Sp_FouRic=conv_Sp_FouRic[1:]
@@ -180,12 +174,54 @@ def signal(chunks,ks,dt,N):
     conj_conv_Sp_FouRic=np.flip(conj_conv_Sp_FouRic)
     Fou_Senal=np.concatenate((conv_Sp_FouRic,conj_conv_Sp_FouRic),axis=0)
     # Cálculo de la IFFT para recuperar la señal en el dominio del tiempo
+    # plt.subplot(131)
+    # plt.plot(abs(Sp))
+    # plt.subplot(132)
+    # plt.plot(abs(FouRic))
+    # # Ajustar el espaciado entre subgráficos
+    # plt.subplot(133)
+    # plt.plot(abs(Fou_Senal))
+    # plt.tight_layout()
+    # plt.show()
     señal_recuperada = np.fft.ifft(Fou_Senal)
     
-    return señal_recuperada,Fou_Senal
+    return señal_recuperada
 
+señales=[]
+for XXi in XX:
+    señales.append(signal(chunks,ks,dt,N,XXi))
 
-señal,Fou_senal=signal(chunks,ks,dt,N)
-plt.plot(señal,'k-',lw=2)
+plt.plot(señales[0],'k-',lw=2)
+plt.plot(señales[1],'b-',lw=6)
+plt.plot(señales[2],'r-',lw=2)
 plt.title("Señal en tiempo")
 plt.show()
+
+# Crear un Stream de ObsPy para almacenar las trazas sísmicas
+# stream = Stream()
+
+# num_traces=len(señales)
+# # Generar trazas sísmicas simuladas
+# for i in range(num_traces):
+
+#     # Crear un objeto Trace de ObsPy
+#     trace = Trace(data=señales[i])
+#     trace.stats.starttime = 0  # Tiempo de inicio de la traza
+#     trace.stats.network = "SY"
+#     trace.stats.station = f"STATION_{i}"  # Nombre de la estación
+#     trace.stats.channel = "HHZ"  # Canal (vertical)
+
+#     # Agregar la traza al Stream
+#     stream.append(trace)
+
+# # Graficar las trazas sísmicas
+# plt.figure(figsize=(10, 6))
+# for i, trace in enumerate(stream):
+#     plt.plot(trace.times(), trace.data + i * 2, label=trace.stats.station)
+
+# plt.xlabel('Tiempo (s)')
+# plt.ylabel('Amplitud')
+# plt.title('Trazas Sísmicas Simuladas')
+# plt.legend()
+# plt.grid(True)
+# plt.show()
