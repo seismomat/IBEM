@@ -12,6 +12,8 @@ from numpy import linalg as la
 from matplotlib import pyplot as plt
 from math import pi,exp
 from math import sqrt as sq
+import json
+import pandas as pd
 
 #from obspy.core import Trace, Stream
 #from numba import jit
@@ -188,14 +190,23 @@ def signal(chunks,ks,dt,N,XX):
     return señal_recuperada
 
 señales=[]
+datos={}
+i=0
 for XXi in XX:
     señales.append(signal(chunks,ks,dt,N,XXi))
+    datos[str(XXi)]=señales[i]
+    df = pd.DataFrame(datos)
+    # Guardar en formato CSV
+    file='datos'+str(i)+'.csv'
+    df.to_csv(file, index=False)
+    i+=1
 
 plt.plot(señales[0],'k-',lw=2)
 plt.plot(señales[1],'b-',lw=6)
 plt.plot(señales[2],'r-',lw=2)
 plt.title("Señal en tiempo")
 plt.show()
+
 
 # Crear un Stream de ObsPy para almacenar las trazas sísmicas
 # stream = Stream()
