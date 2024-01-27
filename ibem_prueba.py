@@ -194,8 +194,8 @@ señales=[]
 datos={}
 i=0
 for XXi in XX:
-    señales.append(signal(chunks,ks,dt,N,XXi))
-    datos[str(XXi)]=np.real(señales[i])
+    señales.append(np.real(signal(chunks,ks,dt,N,XXi)))
+    datos[str(XXi)]=señales[i]
     df = pd.DataFrame(datos)
     # Guardar en formato CSV
     file='datos'+str(i)+'.csv'
