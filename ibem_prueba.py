@@ -36,6 +36,7 @@ N= 32 # armonicos
 dt=0.05
 f0=1/T
 fmax=1/(2*dt)
+N=int(fmax/f0)
 df=1/(N*dt)
 #frec=np.r_[f0:fmax:df]
 frec=np.linspace(f0,fmax,N)
@@ -45,7 +46,7 @@ beta = 2500 # km/s
 
 lambds = beta/frec # long de onda en kilometros
 ks = w / beta # 1/km
-rho = 2500
+rho = 1200
 mus = beta**2 * rho # 2nd Lame constant
 
 dxs=lambds/16
@@ -194,7 +195,7 @@ datos={}
 i=0
 for XXi in XX:
     señales.append(signal(chunks,ks,dt,N,XXi))
-    datos[str(XXi)]=señales[i]
+    datos[str(XXi)]=np.real(señales[i])
     df = pd.DataFrame(datos)
     # Guardar en formato CSV
     file='datos'+str(i)+'.csv'
