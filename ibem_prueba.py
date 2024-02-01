@@ -195,13 +195,18 @@ datos={}
 i=0
 for XXi in XX:
     señales.append(np.real(signal(chunks,ks,dt,N,XXi)))
-    datos[str(XXi)]=señales[i]
-    df = pd.DataFrame(datos)
-    # Guardar en formato CSV
-    file='datos'+str(i)+'.csv'
-    df.to_csv(file, index=False)
+    datos[str(round(XXi[0]))]=señales[i]
     i+=1
 
+df = pd.DataFrame(datos)    
+# Guardar en formato CSV
+file='datos.csv'
+df.to_csv(file, index=False)
+
+m=len(señales[0])
+t=np.zeros(m)
+for i in range(m):
+    t[i]=dt*i;
 plt.plot(señales[0],'k-',lw=2)
 plt.plot(señales[1],'b-',lw=6)
 plt.plot(señales[2],'r-',lw=2)
