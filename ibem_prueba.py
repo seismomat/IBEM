@@ -12,6 +12,8 @@ from numpy import linalg as la
 from matplotlib import pyplot as plt
 from math import pi,exp
 from math import sqrt as sq
+import json
+import pandas as pd
 
 #from obspy.core import Trace, Stream
 #from numba import jit
@@ -34,6 +36,7 @@ N= 32 # armonicos
 dt=0.05
 f0=1/T
 fmax=1/(2*dt)
+N=int(fmax/f0)
 df=1/(N*dt)
 #frec=np.r_[f0:fmax:df]
 frec=np.linspace(f0,fmax,N)
@@ -43,7 +46,7 @@ beta = 2500 # km/s
 
 lambds = beta/frec # long de onda en kilometros
 ks = w / beta # 1/km
-rho = 2500
+rho = 1200
 mus = beta**2 * rho # 2nd Lame constant
 
 dxs=lambds/16
@@ -188,14 +191,28 @@ def signal(chunks,ks,dt,N,XX):
     return señal_recuperada
 
 señales=[]
+datos={}
+i=0
 for XXi in XX:
-    señales.append(signal(chunks,ks,dt,N,XXi))
+    señales.append(np.real(signal(chunks,ks,dt,N,XXi)))
+    datos[str(round(XXi[0]))]=señales[i]
+    i+=1
 
+df = pd.DataFrame(datos)    
+# Guardar en formato CSV
+file='datos.csv'
+df.to_csv(file, index=False)
+
+m=len(señales[0])
+t=np.zeros(m)
+for i in range(m):
+    t[i]=dt*i;
 plt.plot(señales[0],'k-',lw=2)
 plt.plot(señales[1],'b-',lw=6)
 plt.plot(señales[2],'r-',lw=2)
 plt.title("Señal en tiempo")
 plt.show()
+
 
 # Crear un Stream de ObsPy para almacenar las trazas sísmicas
 # stream = Stream()
